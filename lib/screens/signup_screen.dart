@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:booking_time/components/rounded_buttons.dart';
 import 'package:booking_time/components/rounded_textfields.dart';
+import 'package:http/http.dart' as http;
 
 class SignupScreen extends StatefulWidget {
   static const String id = 'signup_screen';
@@ -12,6 +13,11 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+  TextEditingController confirmPassword = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,14 +69,16 @@ class _SignupScreenState extends State<SignupScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 40.0),
                 child: Column(
                   children: [
-                    RoundedTextfields(label: "Email"),
+                    RoundedTextfields(label: "Email",controller: email),
                     RoundedTextfields(
                       label: "Password",
                       obscureText: true,
+                      controller: password
                     ),
                     RoundedTextfields(
                       label: "Confirm Password",
                       obscureText: true,
+                      controller: confirmPassword
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 40.0),
@@ -78,9 +86,35 @@ class _SignupScreenState extends State<SignupScreen> {
                         title: "Sign up",
                         buttonColor: Colors.purpleAccent,
                         textColor: Colors.white,
-                        onPressed: () {
-                          Navigator.pushNamed(context, HomeScreen.id);
+                        onPressed: () async {
+                          // Navigator.pushNamed(context, HomeScreen.id);
                           //TODO: Authentication.
+                          if(password.text!=confirmPassword.text){
+                            print("Passwords does not match!");
+                          }
+                          else{
+                            var response = await http.post(
+                              Uri.parse("http://localhost:3000/user"),
+                              headers: {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                              },
+                              body: {
+                                'email': email.text,
+                                'password': password.text,
+                                'name': "Dulaj",
+                                'nic': "1233232",
+                                'contactNo': '0323233234',
+                                'district': "Matara"
+                              }
+                            );
+
+                            if (response.statusCode == 200) {
+                              print(response.body);
+                            } else {
+                              throw Exception('Failed to load post');
+                            }
+
+                          }
                         },
                       ),
                     ),
